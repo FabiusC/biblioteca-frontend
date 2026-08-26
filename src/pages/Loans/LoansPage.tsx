@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Plus, Search, X } from 'lucide-react'
 import { createLoan, searchLoans } from '@/services/loanService'
 import {
   getAvailableCopies,
@@ -7,11 +8,11 @@ import {
 } from '@/services/bookService'
 import type { Book, Loan } from '@/types'
 
-// Modos de orden / filtro para el selector de libros
+// book list sort / filter modes
 type BookSortMode = 'isbn' | 'available' | 'alpha'
 
 export function LoansPage() {
-  // Busqueda de prestamos existentes
+  // loan search state
   const [searchUserId, setSearchUserId] = useState('')
   const [searchBookId, setSearchBookId] = useState('')
   const [loans, setLoans] = useState<Loan[]>([])
@@ -19,7 +20,7 @@ export function LoansPage() {
   const [searchError, setSearchError] = useState<string | null>(null)
   const [hasSearched, setHasSearched] = useState(false)
 
-  // Modal de registro
+  // register loan modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [books, setBooks] = useState<Book[]>([])
   const [booksLoading, setBooksLoading] = useState(false)
@@ -37,7 +38,7 @@ export function LoansPage() {
   const [createError, setCreateError] = useState<string | null>(null)
   const [createSuccess, setCreateSuccess] = useState<string | null>(null)
 
-  // Busca prestamos por userId y bookId
+  // search loans by userId and bookId
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!searchUserId.trim() || !searchBookId.trim()) {
@@ -69,7 +70,7 @@ export function LoansPage() {
     }
   }
 
-  // Carga el catalogo y el conteo de ejemplares libres por ISBN
+  // load catalog and free-copy counts for the modal
   const loadBooksForModal = async () => {
     try {
       setBooksLoading(true)
@@ -124,25 +125,25 @@ export function LoansPage() {
     resetModal()
   }
 
-  // Aplica filtro y orden local segun el modo elegido
+  // apply local filter and sort for the book selector
   const getDisplayedBooks = (): Book[] => {
     let list = [...books]
 
     if (bookSortMode === 'available') {
-      // Solo libros con al menos un ejemplar libre
+      // keep only books with at least one free copy
       list = list.filter((book) => (availabilityByIsbn[book.isbn] ?? 0) > 0)
     }
 
     if (bookSortMode === 'isbn') {
-      // Orden por ISBN (texto)
+      // sort by ISBN string
       list.sort((a, b) => a.isbn.localeCompare(b.isbn))
     } else if (bookSortMode === 'alpha') {
-      // Orden alfabetico por titulo
+      // alphabetical by title
       list.sort((a, b) =>
         a.title.localeCompare(b.title, 'es', { sensitivity: 'base' }),
       )
     } else if (bookSortMode === 'available') {
-      // Tras filtrar, ordena por titulo para lectura estable
+      // after filtering, sort by title for stable reading
       list.sort((a, b) =>
         a.title.localeCompare(b.title, 'es', { sensitivity: 'base' }),
       )
@@ -151,7 +152,7 @@ export function LoansPage() {
     return list
   }
 
-  // Al elegir un libro, carga la lista de IDs de ejemplares disponibles
+  // load available copy ids when a book is selected
   const handleSelectBook = async (book: Book) => {
     setSelectedBook(book)
     setSelectedCopyId('')
@@ -175,7 +176,7 @@ export function LoansPage() {
     }
   }
 
-  // Registra el prestamo con la copia seleccionada
+  // register loan with selected copy
   const handleCreateLoan = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedCopyId) {
@@ -217,7 +218,7 @@ export function LoansPage() {
     }
   }
 
-  // Cierra el modal con Escape
+  // close modal with Escape
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isModalOpen) closeModal()
@@ -229,48 +230,34 @@ export function LoansPage() {
   const displayedBooks = getDisplayedBooks()
 
   return (
-    <div>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '1.5rem',
-        }}
-      >
+    <div className="page">
+      <div className="page-header">
         <h2>Gestión de Préstamos</h2>
         <button type="button" className="btn btn-primary" onClick={openCreateModal}>
+          <Plus size={18} aria-hidden />
           Register Loan
         </button>
       </div>
 
       <section className="card">
-        <h3 style={{ marginTop: 0 }}>Search Loans</h3>
-        <form
-          onSubmit={handleSearch}
-          style={{
-            display: 'flex',
-            gap: '0.75rem',
-            flexWrap: 'wrap',
-            alignItems: 'flex-end',
-          }}
-        >
-          <div className="form-group" style={{ marginBottom: 0 }}>
+        <h3 className="card-title">Search Loans</h3>
+        <form className="form-row" onSubmit={handleSearch}>
+          <div className="form-group">
             <label htmlFor="search-userId">userId</label>
             <input
               id="search-userId"
-              className="input-field"
+              className="input-control"
               value={searchUserId}
               onChange={(e) => setSearchUserId(e.target.value)}
               placeholder="Ej: 1"
               inputMode="numeric"
             />
           </div>
-          <div className="form-group" style={{ marginBottom: 0 }}>
+          <div className="form-group">
             <label htmlFor="search-bookId">bookId</label>
             <input
               id="search-bookId"
-              className="input-field"
+              className="input-control"
               value={searchBookId}
               onChange={(e) => setSearchBookId(e.target.value)}
               placeholder="Ej: 2"
@@ -278,44 +265,33 @@ export function LoansPage() {
             />
           </div>
           <button type="submit" className="btn btn-primary" disabled={searchLoading}>
+            <Search size={18} aria-hidden />
             {searchLoading ? 'Buscando...' : 'Buscar'}
           </button>
         </form>
 
-        {searchLoading && <p>Cargando préstamos...</p>}
+        {searchLoading && <p className="text-muted">Cargando préstamos...</p>}
         {searchError && (
-          <p role="alert" style={{ color: 'var(--danger-color)' }}>
+          <p role="alert" className="text-danger">
             {searchError}
           </p>
         )}
 
         {hasSearched && !searchLoading && !searchError && loans.length > 0 && (
-          <div style={{ overflowX: 'auto', marginTop: '1rem' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ textAlign: 'left', borderBottom: '1px solid var(--border-color)' }}>
-                  <th style={{ padding: '0.75rem' }}>ID</th>
-                  <th style={{ padding: '0.75rem' }}>userId</th>
-                  <th style={{ padding: '0.75rem' }}>bookId</th>
-                  <th style={{ padding: '0.75rem' }}>loanDate</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loans.map((loan) => (
-                  <tr key={loan.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                    <td style={{ padding: '0.75rem' }}>{loan.id}</td>
-                    <td style={{ padding: '0.75rem' }}>{loan.userId}</td>
-                    <td style={{ padding: '0.75rem' }}>{loan.bookId}</td>
-                    <td style={{ padding: '0.75rem' }}>{loan.loanDate}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid-layout">
+            {loans.map((loan) => (
+              <div key={loan.id} className="card">
+                <h3 className="card-title">Préstamo #{loan.id}</h3>
+                <p className="card-text">Usuario: {loan.userId}</p>
+                <p className="card-text">Libro: {loan.bookId}</p>
+                <p className="card-meta">{loan.loanDate}</p>
+              </div>
+            ))}
           </div>
         )}
 
         {hasSearched && !searchLoading && !searchError && loans.length === 0 && (
-          <p>No hay resultados.</p>
+          <p className="text-muted">No hay resultados.</p>
         )}
       </section>
 
@@ -327,30 +303,17 @@ export function LoansPage() {
           aria-labelledby="loan-modal-title"
           onClick={closeModal}
         >
-          <div
-            className="modal-content"
-            style={{ maxWidth: '560px', maxHeight: '90vh', overflowY: 'auto' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '1rem',
-              }}
-            >
-              <h3 id="loan-modal-title" style={{ margin: 0 }}>
-                Register Loan
-              </h3>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 id="loan-modal-title">Register Loan</h3>
               <button
                 type="button"
-                className="btn"
+                className="btn btn-icon"
                 onClick={closeModal}
                 aria-label="Cerrar modal"
                 disabled={createLoading}
               >
-                Cerrar
+                <X size={18} aria-hidden />
               </button>
             </div>
 
@@ -358,7 +321,7 @@ export function LoansPage() {
               <label htmlFor="book-sort-mode">Ordenar / filtrar libros</label>
               <select
                 id="book-sort-mode"
-                className="input-field"
+                className="input-control"
                 value={bookSortMode}
                 onChange={(e) => setBookSortMode(e.target.value as BookSortMode)}
               >
@@ -368,14 +331,14 @@ export function LoansPage() {
               </select>
             </div>
 
-            {booksLoading && <p>Cargando libros...</p>}
+            {booksLoading && <p className="text-muted">Cargando libros...</p>}
 
             {!booksLoading && (
               <div className="form-group">
                 <label htmlFor="loan-book">Libro</label>
                 <select
                   id="loan-book"
-                  className="input-field"
+                  className="input-control"
                   value={selectedBook ? String(selectedBook.id) : ''}
                   onChange={(e) => {
                     const book = displayedBooks.find((b) => String(b.id) === e.target.value)
@@ -398,24 +361,24 @@ export function LoansPage() {
             )}
 
             {selectedBook && (
-              <p style={{ marginTop: 0, fontSize: '0.875rem', opacity: 0.8 }}>
+              <p className="text-muted">
                 {copiesLoading
                   ? 'Consultando ejemplares...'
                   : `${copies.length} ejemplar(es) disponible(s)`}
               </p>
             )}
             {copiesError && (
-              <p role="alert" style={{ color: 'var(--danger-color)' }}>
+              <p role="alert" className="text-danger">
                 {copiesError}
               </p>
             )}
 
-            <form onSubmit={handleCreateLoan} style={{ display: 'grid', gap: '0.75rem' }}>
-              <div className="form-group" style={{ marginBottom: 0 }}>
+            <form className="form-stack" onSubmit={handleCreateLoan}>
+              <div className="form-group">
                 <label htmlFor="loan-copy">Ejemplar disponible</label>
                 <select
                   id="loan-copy"
-                  className="input-field"
+                  className="input-control"
                   value={selectedCopyId}
                   onChange={(e) => setSelectedCopyId(e.target.value)}
                   disabled={copies.length === 0}
@@ -434,11 +397,11 @@ export function LoansPage() {
                 </select>
               </div>
 
-              <div className="form-group" style={{ marginBottom: 0 }}>
+              <div className="form-group">
                 <label htmlFor="loan-userId">ID Usuario</label>
                 <input
                   id="loan-userId"
-                  className="input-field"
+                  className="input-control"
                   value={loanUserId}
                   onChange={(e) => setLoanUserId(e.target.value)}
                   placeholder="Ej: 1"
@@ -448,24 +411,17 @@ export function LoansPage() {
               </div>
 
               {createError && (
-                <p role="alert" style={{ color: 'var(--danger-color)', margin: 0 }}>
+                <p role="alert" className="text-danger">
                   {createError}
                 </p>
               )}
               {createSuccess && (
-                <p role="status" style={{ color: 'var(--success-color)', margin: 0 }}>
+                <p role="status" className="text-success">
                   {createSuccess}
                 </p>
               )}
 
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  gap: '0.5rem',
-                  marginTop: '0.5rem',
-                }}
-              >
+              <div className="form-actions">
                 <button
                   type="button"
                   className="btn"

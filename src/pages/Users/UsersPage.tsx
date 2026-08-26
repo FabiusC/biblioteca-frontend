@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Edit, Plus, Trash2, X } from 'lucide-react'
 import {
   createUser,
   deleteUser,
@@ -16,7 +17,7 @@ export function UsersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Estado del modal y del formulario compartido (crear / editar)
+  // shared create / edit modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
   const [formData, setFormData] = useState<FormData>(emptyForm)
@@ -47,7 +48,7 @@ export function UsersPage() {
     setIsModalOpen(true)
   }
 
-  // Abre el modal precargado con los datos del usuario
+  // open modal with selected user data
   const openEditModal = (user: User) => {
     setEditingUser(user)
     setFormData({ name: user.name, email: user.email })
@@ -72,7 +73,7 @@ export function UsersPage() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  // Valida y envia creacion o actualizacion
+  // form submit handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.name.trim() || !formData.email.trim()) {
@@ -80,7 +81,7 @@ export function UsersPage() {
       return
     }
     if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      setFormError('Email no valido')
+      setFormError('Email no válido')
       return
     }
 
@@ -104,7 +105,7 @@ export function UsersPage() {
     }
   }
 
-  // Confirma con dialogo nativo antes de eliminar
+  // confirm before delete
   const handleDelete = async (id: number) => {
     if (!window.confirm('Are you sure?')) return
     try {
@@ -115,7 +116,7 @@ export function UsersPage() {
     }
   }
 
-  // Cierra el modal con Escape
+  // close modal with Escape
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isModalOpen) closeModal()
@@ -125,62 +126,52 @@ export function UsersPage() {
   }, [isModalOpen, submitting])
 
   return (
-    <div>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '1.5rem',
-        }}
-      >
+    <div className="page">
+      <div className="page-header">
         <h2>Gestión de Usuarios</h2>
         <button type="button" className="btn btn-primary" onClick={openCreateModal}>
+          <Plus size={18} aria-hidden />
           Create User
         </button>
       </div>
 
-      {loading && <p>Cargando usuarios...</p>}
+      {loading && <p className="text-muted">Cargando usuarios...</p>}
       {error && (
-        <p role="alert" style={{ color: 'var(--danger-color)' }}>
+        <p role="alert" className="text-danger">
           {error}
         </p>
       )}
 
       {!loading && !error && users.length === 0 && (
-        <p>No hay usuarios registrados.</p>
+        <p className="text-muted">No hay usuarios registrados.</p>
       )}
 
       {!loading && !error && users.length > 0 && (
-        <div className="card-grid">
+        <div className="grid-layout">
           {users.map((user) => (
-            <article key={user.id} className="card">
-              <h3 style={{ margin: '0 0 0.5rem' }}>{user.name}</h3>
-              <p style={{ margin: '0 0 0.25rem', color: 'var(--text-color)' }}>
-                {user.email}
-              </p>
-              <p style={{ margin: '0 0 1rem', fontSize: '0.875rem', opacity: 0.7 }}>
-                ID: {user.id}
-              </p>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <div key={user.id} className="card">
+              <h3 className="card-title">{user.name}</h3>
+              <p className="card-text">{user.email}</p>
+              <p className="card-meta">ID: {user.id}</p>
+              <div className="card-actions">
                 <button
                   type="button"
-                  className="btn btn-primary"
+                  className="btn btn-icon"
                   onClick={() => openEditModal(user)}
                   aria-label={`Editar usuario ${user.name}`}
                 >
-                  Edit
+                  <Edit size={18} aria-hidden />
                 </button>
                 <button
                   type="button"
-                  className="btn btn-danger"
+                  className="btn btn-icon btn-danger"
                   onClick={() => handleDelete(user.id)}
                   aria-label={`Eliminar usuario ${user.name}`}
                 >
-                  Delete
+                  <Trash2 size={18} aria-hidden />
                 </button>
               </div>
-            </article>
+            </div>
           ))}
         </div>
       )}
@@ -193,29 +184,19 @@ export function UsersPage() {
           aria-labelledby="user-modal-title"
           onClick={closeModal}
         >
-          <div
-            className="modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '1rem',
-              }}
-            >
-              <h3 id="user-modal-title" style={{ margin: 0 }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 id="user-modal-title">
                 {editingUser ? 'Editar usuario' : 'Crear usuario'}
               </h3>
               <button
                 type="button"
-                className="btn"
+                className="btn btn-icon"
                 onClick={closeModal}
                 aria-label="Cerrar modal"
                 disabled={submitting}
               >
-                Cerrar
+                <X size={18} aria-hidden />
               </button>
             </div>
 
@@ -225,7 +206,7 @@ export function UsersPage() {
                 <input
                   id="user-name"
                   name="name"
-                  className="input-field"
+                  className="input-control"
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="Nombre completo"
@@ -240,7 +221,7 @@ export function UsersPage() {
                   id="user-email"
                   name="email"
                   type="email"
-                  className="input-field"
+                  className="input-control"
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="correo@ejemplo.com"
@@ -249,19 +230,12 @@ export function UsersPage() {
               </div>
 
               {formError && (
-                <p role="alert" style={{ color: 'var(--danger-color)', marginTop: 0 }}>
+                <p role="alert" className="text-danger">
                   {formError}
                 </p>
               )}
 
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  gap: '0.5rem',
-                  marginTop: '1rem',
-                }}
-              >
+              <div className="form-actions">
                 <button
                   type="button"
                   className="btn"

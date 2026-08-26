@@ -1,35 +1,30 @@
-import { useState, useEffect } from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { useState, useEffect } from 'react'
+import { Link, Outlet } from 'react-router-dom'
+import { Moon, Sun } from 'lucide-react'
 
 export const Layout = () => {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(false)
 
-  // Aplica o quita .dark-theme en el elemento raiz segun el estado
+  // toggle dark theme on the document root
   useEffect(() => {
-    document.documentElement.classList.toggle('dark-theme', isDark);
-  }, [isDark]);
+    document.documentElement.classList.toggle('dark-theme', isDark)
+  }, [isDark])
 
   return (
     <div>
-      <nav className="container" style={{ padding: '1rem 0' }}>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '2rem',
-          }}
-        >
+      <nav className="navbar container">
+        <div className="nav-links">
           <Link to="/">Inicio</Link>
           <Link to="/users">Usuarios</Link>
           <Link to="/books">Libros</Link>
           <Link to="/loans">Préstamos</Link>
           <button
-            className="btn"
+            type="button"
+            className="btn btn-icon"
             onClick={() => setIsDark(!isDark)}
-            aria-label="Alternar tema"
+            aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'}
           >
-            {isDark ? 'Modo Claro' : 'Modo Oscuro'}
+            {isDark ? <Sun size={18} aria-hidden /> : <Moon size={18} aria-hidden />}
           </button>
         </div>
       </nav>
@@ -37,5 +32,5 @@ export const Layout = () => {
         <Outlet />
       </main>
     </div>
-  );
-};
+  )
+}

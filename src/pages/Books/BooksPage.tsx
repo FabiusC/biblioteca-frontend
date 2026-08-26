@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Edit, Plus, Trash2, X } from 'lucide-react'
 import {
   createBook,
   deleteBook,
@@ -17,7 +18,7 @@ export function BooksPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Estado del modal y del formulario compartido (crear / editar)
+  // shared create / edit modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingBook, setEditingBook] = useState<Book | null>(null)
   const [formData, setFormData] = useState<FormData>(emptyForm)
@@ -48,7 +49,7 @@ export function BooksPage() {
     setIsModalOpen(true)
   }
 
-  // Abre el modal precargado con los datos del libro
+  // open modal with selected book data
   const openEditModal = (book: Book) => {
     setEditingBook(book)
     setFormData({ title: book.title, author: book.author, isbn: book.isbn })
@@ -73,7 +74,7 @@ export function BooksPage() {
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  // Valida y envia creacion o actualizacion
+  // form submit handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.title.trim() || !formData.author.trim() || !formData.isbn.trim()) {
@@ -101,7 +102,7 @@ export function BooksPage() {
     }
   }
 
-  // Confirma con dialogo nativo antes de eliminar
+  // confirm before delete
   const handleDelete = async (id: number) => {
     if (!window.confirm('Are you sure?')) return
     try {
@@ -112,7 +113,7 @@ export function BooksPage() {
     }
   }
 
-  // Cierra el modal con Escape
+  // close modal with Escape
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isModalOpen) closeModal()
@@ -122,75 +123,58 @@ export function BooksPage() {
   }, [isModalOpen, submitting])
 
   return (
-    <div>
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '1.5rem',
-        }}
-      >
+    <div className="page">
+      <div className="page-header">
         <h2>Gestión de Libros</h2>
         <button type="button" className="btn btn-primary" onClick={openCreateModal}>
+          <Plus size={18} aria-hidden />
           Create Book
         </button>
       </div>
 
-      {loading && <p>Cargando libros...</p>}
+      {loading && <p className="text-muted">Cargando libros...</p>}
       {error && (
-        <p role="alert" style={{ color: 'var(--danger-color)' }}>
+        <p role="alert" className="text-danger">
           {error}
         </p>
       )}
 
       {!loading && !error && books.length === 0 && (
-        <p>No hay libros registrados.</p>
+        <p className="text-muted">No hay libros registrados.</p>
       )}
 
       {!loading && !error && books.length > 0 && (
-        <div className="card-grid">
+        <div className="grid-layout">
           {books.map((book) => (
-            <article key={book.id} className="card">
+            <div key={book.id} className="card">
               <img
+                className="card-media"
                 src={getBookCoverUrl(book.isbn)}
                 alt={`Portada de ${book.title}`}
                 loading="lazy"
-                style={{
-                  width: '100%',
-                  height: '200px',
-                  objectFit: 'cover',
-                  borderRadius: '0.375rem',
-                  marginBottom: '0.75rem',
-                  background: 'var(--border-color)',
-                }}
               />
-              <h3 style={{ margin: '0 0 0.5rem' }}>{book.title}</h3>
-              <p style={{ margin: '0 0 0.25rem', color: 'var(--text-color)' }}>
-                {book.author}
-              </p>
-              <p style={{ margin: '0 0 1rem', fontSize: '0.875rem', opacity: 0.7 }}>
-                ISBN: {book.isbn}
-              </p>
-              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <h3 className="card-title">{book.title}</h3>
+              <p className="card-text">{book.author}</p>
+              <p className="card-meta">ISBN: {book.isbn}</p>
+              <div className="card-actions">
                 <button
                   type="button"
-                  className="btn btn-primary"
+                  className="btn btn-icon"
                   onClick={() => openEditModal(book)}
                   aria-label={`Editar libro ${book.title}`}
                 >
-                  Edit
+                  <Edit size={18} aria-hidden />
                 </button>
                 <button
                   type="button"
-                  className="btn btn-danger"
+                  className="btn btn-icon btn-danger"
                   onClick={() => handleDelete(book.id)}
                   aria-label={`Eliminar libro ${book.title}`}
                 >
-                  Delete
+                  <Trash2 size={18} aria-hidden />
                 </button>
               </div>
-            </article>
+            </div>
           ))}
         </div>
       )}
@@ -203,29 +187,19 @@ export function BooksPage() {
           aria-labelledby="book-modal-title"
           onClick={closeModal}
         >
-          <div
-            className="modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '1rem',
-              }}
-            >
-              <h3 id="book-modal-title" style={{ margin: 0 }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 id="book-modal-title">
                 {editingBook ? 'Editar libro' : 'Crear libro'}
               </h3>
               <button
                 type="button"
-                className="btn"
+                className="btn btn-icon"
                 onClick={closeModal}
                 aria-label="Cerrar modal"
                 disabled={submitting}
               >
-                Cerrar
+                <X size={18} aria-hidden />
               </button>
             </div>
 
@@ -235,7 +209,7 @@ export function BooksPage() {
                 <input
                   id="book-title"
                   name="title"
-                  className="input-field"
+                  className="input-control"
                   value={formData.title}
                   onChange={handleChange}
                   placeholder="Título del libro"
@@ -249,7 +223,7 @@ export function BooksPage() {
                 <input
                   id="book-author"
                   name="author"
-                  className="input-field"
+                  className="input-control"
                   value={formData.author}
                   onChange={handleChange}
                   placeholder="Autor"
@@ -262,7 +236,7 @@ export function BooksPage() {
                 <input
                   id="book-isbn"
                   name="isbn"
-                  className="input-field"
+                  className="input-control"
                   value={formData.isbn}
                   onChange={handleChange}
                   placeholder="978-3-16-148410-0"
@@ -271,19 +245,12 @@ export function BooksPage() {
               </div>
 
               {formError && (
-                <p role="alert" style={{ color: 'var(--danger-color)', marginTop: 0 }}>
+                <p role="alert" className="text-danger">
                   {formError}
                 </p>
               )}
 
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  gap: '0.5rem',
-                  marginTop: '1rem',
-                }}
-              >
+              <div className="form-actions">
                 <button
                   type="button"
                   className="btn"
