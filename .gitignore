@@ -1,0 +1,21 @@
+node_modules
+dist
+.DS_Store
+.env
+.env.*
+!.env.example
+coverage
+*.log
+
+# Misc
+.DS_Store
+*.pem
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs
+logs
+*.log
