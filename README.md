@@ -1,3 +1,9 @@
+# Sistema de Gestión de Biblioteca - Frontend
+
+Aplicación web desarrollada en **React** con **TypeScript**, diseñada para consumir la API REST del backend de gestión bibliotecaria. Permite administrar de forma integral usuarios, libros, ejemplares y préstamos bajo una interfaz moderna y responsiva.
+
+---
+
 ## Instrucciones de Ejecución y Despliegue
 
 ### Requisitos Previos
@@ -10,7 +16,7 @@
 1. Clonar el repositorio e instalar las dependencias:
 
 ```bash
-git clone <url-del-repositorio>
+git clone https://github.com/FabiusC/biblioteca-frontend.git
 cd biblioteca-frontend
 npm install
 
@@ -23,30 +29,14 @@ cp .env.example .env
 
 ```
 
-_(Asegúrate de apuntar la URL base de la API hacia tu backend local, por ejemplo: `VITE_API_URL=http://localhost:8080/api`)_ 3. Iniciar el servidor de desarrollo local con Vite:
-
-```bash
-npm run dev
-
-```
-
-### Opción 2: Despliegue con Docker (Recomendado para producción / pruebas)
-
-1. Asegúrate de tener configurado el archivo de variables de entorno `.env` en la raíz del proyecto.
-2. Levanta los contenedores utilizando Docker Compose:
+3. Desplegar con Docker
 
 ```bash
 docker compose up -d --build
 
 ```
 
-3. La aplicación estará disponible en el puerto expuesto en tu configuración de Docker (por ejemplo: `http://localhost:3000`), sirviéndose a través de un servidor web Nginx optimizado para producción.
-
-# Sistema de Gestión de Biblioteca - Frontend
-
-Aplicación web desarrollada en **React** con **TypeScript**, diseñada para consumir la API REST del backend de gestión bibliotecaria. Permite administrar de forma integral usuarios, libros, ejemplares y préstamos bajo una interfaz moderna y responsiva.
-
----
+4. La aplicación estará disponible en el puerto expuesto en tu configuración de Docker (por ejemplo: `http://localhost:3000`)
 
 ## Tecnologías Utilizadas
 
