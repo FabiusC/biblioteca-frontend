@@ -11,7 +11,7 @@ Aplicación web desarrollada en **React** con **TypeScript**, diseñada para con
 - Node.js (versión 18 o superior recomendada)
 - Docker y Docker Compose (para despliegue contenerizado)
 
-### Opción 1: Ejecución local en desarrollo
+### Ejecución local en desarrollo
 
 1. Clonar el repositorio e instalar las dependencias:
 
