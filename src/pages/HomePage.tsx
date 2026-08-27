@@ -13,7 +13,7 @@ export function HomePage() {
         <p className="card-meta">API: {apiBaseUrl}/api</p>
         <div className="card-actions">
           <Link className="btn btn-primary" to="/catalog">
-            Open catalog
+            Abrir Catalogo
           </Link>
         </div>
       </section>

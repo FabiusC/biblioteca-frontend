@@ -1,61 +1,102 @@
-# Biblioteca – Plataforma de Gestión
+## Instrucciones de Ejecución y Despliegue
 
-Plataforma web para la gestión integral de una biblioteca: administración de usuarios, catálogo de libros con portadas, control de ejemplares disponibles y préstamos. Incluye catálogo público, módulo de administración y trazabilidad de préstamos por usuario y ejemplar.
+### Requisitos Previos
 
-## Instrucciones de Despliegue Local (Docker)
+- Node.js (versión 18 o superior recomendada)
+- Docker y Docker Compose (para despliegue contenerizado)
 
-Prerrequisitos: Tener Docker y Docker Compose instalados en tu sistema.
+### Opción 1: Ejecución local en desarrollo
 
-### 1. Variables de Entorno
+1. Clonar el repositorio e instalar las dependencias:
 
-Configurar los archivos `.env` a partir de los `.env.example` correspondientes en el repositorio.
-Puedes copiarlos rápidamente usando este comando:
+```bash
+git clone <url-del-repositorio>
+cd biblioteca-frontend
+npm install
+
+```
+
+2. Configurar las variables de entorno basándose en el archivo `.env.example`:
 
 ```bash
 cp .env.example .env
 
 ```
 
-- `VITE_API_URL`: URL base de la API (ejemplo: `http://localhost:8080`)
+_(Asegúrate de apuntar la URL base de la API hacia tu backend local, por ejemplo: `VITE_API_URL=http://localhost:8080/api`)_ 3. Iniciar el servidor de desarrollo local con Vite:
 
-### 2. Levantar la Infraestructura
+```bash
+npm run dev
 
-Una vez configuradas las variables de entorno, compila y levanta todos los servicios en segundo plano con el siguiente comando:
+```
+
+### Opción 2: Despliegue con Docker (Recomendado para producción / pruebas)
+
+1. Asegúrate de tener configurado el archivo de variables de entorno `.env` en la raíz del proyecto.
+2. Levanta los contenedores utilizando Docker Compose:
 
 ```bash
 docker compose up -d --build
 
 ```
 
-**Accesos por defecto:**
+3. La aplicación estará disponible en el puerto expuesto en tu configuración de Docker (por ejemplo: `http://localhost:3000`), sirviéndose a través de un servidor web Nginx optimizado para producción.
 
-- Frontend: `http://localhost:3000`
-- API Backend: `http://localhost:8080`
-- PostgreSQL: `localhost:5432`
+# Sistema de Gestión de Biblioteca - Frontend
 
-### 3. Restauración de Datos de Prueba
+Aplicación web desarrollada en **React** con **TypeScript**, diseñada para consumir la API REST del backend de gestión bibliotecaria. Permite administrar de forma integral usuarios, libros, ejemplares y préstamos bajo una interfaz moderna y responsiva.
 
-El repositorio incluye un archivo de prueba en la ruta `db-backup/backup.dump`. Para restaurar esta data inicial dentro del contenedor, ejecuta el siguiente comando:
+---
 
-**En Linux / Mac / CMD (Windows):**
+## Tecnologías Utilizadas
 
-```bash
-docker compose exec -T db psql -U postgres -d library_db < db-backup/backup.dump
+- **React** (con Vite para un rendimiento óptimo)
+- **TypeScript** (tipado estático para mayor robustez)
+- **Axios / Fetch API** (comunicación HTTP con el backend)
+- **Lucide React** (iconografía limpia y moderna)
+- **Docker & Nginx** (orquestación y despliegue en contenedores)
+
+---
+
+## Funcionalidades Principales
+
+### 1. Gestión de Libros
+
+- Listado completo con tarjetas horizontales, transiciones y lazy loading de portadas reales integradas mediante la API pública de **Open Library**.
+- Formulario inteligente de creación y edición con autocompletado de títulos asistido y validación estricta de campos (ISBN numérico de 13 dígitos, ediciones y fechas de publicación válidas).
+- Filtro rápido para visualizar únicamente los libros con ejemplares disponibles.
+
+### 2. Gestión de Usuarios
+
+- CRUD completo para registrar, listar, editar y eliminar usuarios.
+- Validaciones de campos obligatorios, control de correos únicos y formato de fecha de nacimiento.
+
+### 3. Gestión de Préstamos
+
+- Registro de préstamos seleccionando dinámicamente usuarios y ejemplares disponibles (`copies`) asociados a los libros.
+- **Validaciones de negocio robustas:** El sistema bloquea automáticamente la creación de nuevos préstamos si el usuario posee libros en estado activo (`ACTIVE`) o vencido (`OVERDUE`).
+- Búsqueda avanzada de préstamos filtrando por usuario o por libro de forma independiente.
+- Gestión de devoluciones que actualiza en tiempo real el estado del préstamo a devuelto (`RETURNED`) y libera automáticamente la copia en el inventario.
+
+---
+
+## Arquitectura del Proyecto
+
+El proyecto sigue una estructura modular y limpia basada en capas dentro del directorio `src/`:
+
+```text
+src/
+├── components/       # Componentes visuales reutilizables (Layout principal)
+├── layouts/          # Estructuras de contenedores de página (AppLayout)
+├── pages/            # Vistas principales de la aplicación (Books, Loans, Users)
+│   ├── Books/        # Submódulos y lógica de libros
+│   ├── Loans/        # Submódulos y lógica de préstamos
+│   └── Users/        # Submódulos y lógica de usuarios
+├── services/         # Servicios de comunicación HTTP con Axios (api, bookService, loanService, userService)
+├── types/            # Definición de interfaces y tipos globales en TypeScript
+├── utils/            # Funciones de ayuda y utilidades de negocio
+├── App.tsx           # Componente raíz y enrutamiento principal
+├── index.css         # Estilos globales y clases CSS del sistema
+└── main.tsx          # Punto de entrada de la aplicación React
 
 ```
-
-> **Nota para usuarios de PowerShell (Windows):** El operador `<` no está soportado. Utiliza este comando en su lugar:
->
-> ```powershell
-> Get-Content db-backup/backup.dump | docker compose exec -T db psql -U postgres -d library_db
->
-> ```
-
-## Arquitectura y Tecnologías Usadas
-
-El proyecto mantiene una separación clara de responsabilidades: el backend expone la API REST, el frontend la consume vía cliente Axios centralizado, y ambos se despliegan como contenedores independientes.
-
-- **Backend:** Spring Boot 3, Java 17. Encargado de la API REST, validación y persistencia de datos.
-- **Frontend:** React, TypeScript, Vite. Aplicación SPA (Single Page Application) utilizando React Router y Axios.
-- **Base de datos:** PostgreSQL. Encargada de la persistencia relacional.
-- **Infraestructura:** Docker, Docker Compose, Nginx. Orquestación general y servidor web para los archivos estáticos del frontend.

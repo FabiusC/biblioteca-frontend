@@ -1,17 +1,17 @@
-import { Link } from 'react-router-dom'
+import { Link } from "react-router-dom";
 
 export function CatalogPage() {
   return (
     <div className="page">
       <section className="card">
-        <h2 className="card-title">Catalog</h2>
+        <h2 className="card-title">Catalogo</h2>
         <p className="card-text">
           Accesos rápidos a las vistas de administración de la biblioteca.
         </p>
         <div className="grid-layout">
           <div className="card">
-            <h3 className="card-title">Books</h3>
-            <p className="card-meta">List and manage the collection.</p>
+            <h3 className="card-title">Libros</h3>
+            <p className="card-meta">Gestiona la colección de libros.</p>
             <div className="card-actions">
               <Link className="btn btn-primary" to="/books">
                 Ver libros
@@ -19,8 +19,8 @@ export function CatalogPage() {
             </div>
           </div>
           <div className="card">
-            <h3 className="card-title">Loans</h3>
-            <p className="card-meta">Track active and returned loans.</p>
+            <h3 className="card-title">Préstamos</h3>
+            <p className="card-meta">Gestiona los préstamos de libros.</p>
             <div className="card-actions">
               <Link className="btn btn-primary" to="/loans">
                 Ver préstamos
@@ -28,8 +28,8 @@ export function CatalogPage() {
             </div>
           </div>
           <div className="card">
-            <h3 className="card-title">Users</h3>
-            <p className="card-meta">Prepare the member management flow.</p>
+            <h3 className="card-title">Usuarios</h3>
+            <p className="card-meta">Gestiona la lista de usuarios.</p>
             <div className="card-actions">
               <Link className="btn btn-primary" to="/users">
                 Ver usuarios
@@ -39,5 +39,5 @@ export function CatalogPage() {
         </div>
       </section>
     </div>
-  )
+  );
 }
