@@ -21,12 +21,20 @@ cd biblioteca-frontend
 
 ```
 
-2. Configurar las variables de entorno basándose en el archivo `.env.example`:
+2. Copia la plantilla de entorno para crear el archivo `.env`:
 
-```bash
-cp .env.example .env
-
-```
+- **En Linux / macOS / Git Bash:**
+  ```bash
+  cp .env.example .env
+  ```
+- **En Windows (PowerShell):**
+  ```powershell
+  Copy-Item .env.example .env
+  ```
+- **En Windows (CMD):**
+  ```cmd
+  copy .env.example .env
+  ```
 
 3. Desplegar con Docker
 
