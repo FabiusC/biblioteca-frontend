@@ -1,21 +1,28 @@
 // Definiciones de tipos para las entidades del sistema
 
 export interface User {
-  id: number
-  name: string
-  email: string
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  birthDate: string;
 }
 
 export interface Book {
-  id: number
-  title: string
-  author: string
-  isbn: string
+  id: number;
+  title: string;
+  author: string;
+  isbn: string;
+  edition: number;
+  publicationDate: string;
 }
 
 export interface Loan {
-  id: number
-  bookId: number
-  userId: number
-  loanDate: string
+  id: number;
+  userId: number;
+  bookId: number;
+  copyId: number;
+  loanDate: string;
+  returnDate: string;
+  status: string;
 }

@@ -19,6 +19,12 @@ export const updateUser = async (id: number, data: Partial<User>) => {
   return response.data
 }
 
+// Busca un usuario por su id
+export const getUserById = async (id: number) => {
+  const response = await api.get<User>(`/users/${id}`)
+  return response.data
+}
+
 // Elimina un usuario
 export const deleteUser = async (id: number) => {
   await api.delete(`/users/${id}`)
