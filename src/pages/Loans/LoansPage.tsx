@@ -36,7 +36,7 @@ export function LoansPage() {
           onClick={() => setIsRegisterOpen(true)}
         >
           <Plus size={18} aria-hidden />
-          Register Loan
+          Registrar Préstamo 
         </button>
       </div>
 
