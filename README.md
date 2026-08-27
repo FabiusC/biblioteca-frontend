@@ -13,12 +13,11 @@ Aplicación web desarrollada en **React** con **TypeScript**, diseñada para con
 
 ### Ejecución local en desarrollo
 
-1. Clonar el repositorio e instalar las dependencias:
+1. Clonar el repositorio
 
 ```bash
 git clone https://github.com/FabiusC/biblioteca-frontend.git
 cd biblioteca-frontend
-npm install
 
 ```
 
