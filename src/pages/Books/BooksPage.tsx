@@ -102,7 +102,7 @@ export function BooksPage() {
             }}
           >
             <Plus size={18} aria-hidden />
-            Create Book
+            Crear Libro
           </button>
         </div>
       </div>
