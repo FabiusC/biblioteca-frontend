@@ -1,33 +1,17 @@
 import { useEffect, useState } from "react";
-import { Edit, Plus, Trash2, X } from "lucide-react";
-import {
-  createUser,
-  deleteUser,
-  getUsers,
-  updateUser,
-} from "@/services/userService";
+import { Edit, Plus, Trash2 } from "lucide-react";
+import { deleteUser, getUsers } from "@/services/userService";
 import type { User } from "@/types";
-
-type FormData = Omit<User, "id">;
-
-const emptyForm: FormData = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  birthDate: "",
-};
+import { UserFormModal } from "./UserFormModal";
 
 export function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // shared create / edit modal state
+  // Modal de creacion / edicion
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [formData, setFormData] = useState<FormData>(emptyForm);
-  const [submitting, setSubmitting] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
 
   const fetchUsers = async () => {
     try {
@@ -46,83 +30,14 @@ export function UsersPage() {
     fetchUsers();
   }, []);
 
-  const openCreateModal = () => {
-    setEditingUser(null);
-    setFormData(emptyForm);
-    setFormError(null);
-    setIsModalOpen(true);
+  const handleUserSaved = (user: User) => {
+    setUsers((prev) =>
+      editingUser
+        ? prev.map((u) => (u.id === user.id ? user : u))
+        : [...prev, user],
+    );
   };
 
-  // open modal with selected user data
-  const openEditModal = (user: User) => {
-    setEditingUser(user);
-    setFormData({
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      birthDate: user.birthDate,
-    });
-    setFormError(null);
-    setIsModalOpen(true);
-  };
-
-  const resetModal = () => {
-    setIsModalOpen(false);
-    setEditingUser(null);
-    setFormData(emptyForm);
-    setFormError(null);
-  };
-
-  const closeModal = () => {
-    if (submitting) return;
-    resetModal();
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // form submit handler
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (
-      !formData.firstName.trim() ||
-      !formData.lastName.trim() ||
-      !formData.email.trim() ||
-      !formData.birthDate.trim()
-    ) {
-      setFormError(
-        "Nombre, apellido, email y fecha de nacimiento son obligatorios",
-      );
-      return;
-    }
-    if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      setFormError("Email no válido");
-      return;
-    }
-
-    try {
-      setSubmitting(true);
-      setFormError(null);
-      if (editingUser) {
-        const updated = await updateUser(editingUser.id, formData);
-        setUsers((prev) =>
-          prev.map((u) => (u.id === editingUser.id ? updated : u)),
-        );
-      } else {
-        const created = await createUser(formData);
-        setUsers((prev) => [...prev, created]);
-      }
-      resetModal();
-    } catch {
-      setFormError("Error al guardar el usuario");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  // confirm before delete
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure?")) return;
     try {
@@ -133,15 +48,6 @@ export function UsersPage() {
     }
   };
 
-  // close modal with Escape
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isModalOpen) closeModal();
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isModalOpen, submitting]);
-
   return (
     <div className="page">
       <div className="page-header">
@@ -149,7 +55,10 @@ export function UsersPage() {
         <button
           type="button"
           className="btn btn-primary"
-          onClick={openCreateModal}
+          onClick={() => {
+            setEditingUser(null);
+            setIsModalOpen(true);
+          }}
         >
           <Plus size={18} aria-hidden />
           Create User
@@ -181,7 +90,10 @@ export function UsersPage() {
                 <button
                   type="button"
                   className="btn btn-icon"
-                  onClick={() => openEditModal(user)}
+                  onClick={() => {
+                    setEditingUser(user);
+                    setIsModalOpen(true);
+                  }}
                   aria-label={`Editar usuario ${user.firstName} ${user.lastName}`}
                 >
                   <Edit size={18} aria-hidden />
@@ -200,116 +112,15 @@ export function UsersPage() {
         </div>
       )}
 
-      {isModalOpen && (
-        <div
-          className="modal-overlay"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="user-modal-title"
-          onClick={closeModal}
-        >
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3 id="user-modal-title">
-                {editingUser ? "Editar usuario" : "Crear usuario"}
-              </h3>
-              <button
-                type="button"
-                className="btn btn-icon"
-                onClick={closeModal}
-                aria-label="Cerrar modal"
-                disabled={submitting}
-              >
-                <X size={18} aria-hidden />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="user-first-name">Nombre</label>
-                <input
-                  id="user-first-name"
-                  name="firstName"
-                  className="input-control"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  placeholder="Nombre"
-                  autoFocus
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="user-last-name">Apellido</label>
-                <input
-                  id="user-last-name"
-                  name="lastName"
-                  className="input-control"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  placeholder="Apellido"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="user-email">Email</label>
-                <input
-                  id="user-email"
-                  name="email"
-                  type="email"
-                  className="input-control"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="correo@ejemplo.com"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="user-birth-date">Fecha de nacimiento</label>
-                <input
-                  id="user-birth-date"
-                  name="birthDate"
-                  type="date"
-                  className="input-control"
-                  value={formData.birthDate}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              {formError && (
-                <p role="alert" className="text-danger">
-                  {formError}
-                </p>
-              )}
-
-              <div className="form-actions">
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={closeModal}
-                  disabled={submitting}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={submitting}
-                >
-                  {submitting
-                    ? "Guardando..."
-                    : editingUser
-                      ? "Actualizar"
-                      : "Crear"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <UserFormModal
+        isOpen={isModalOpen}
+        editingUser={editingUser}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingUser(null);
+        }}
+        onSaved={handleUserSaved}
+      />
     </div>
   );
 }
