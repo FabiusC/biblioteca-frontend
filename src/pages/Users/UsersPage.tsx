@@ -61,7 +61,7 @@ export function UsersPage() {
           }}
         >
           <Plus size={18} aria-hidden />
-          Create User
+          Crear Usuario 
         </button>
       </div>
 
